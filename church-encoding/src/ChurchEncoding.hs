@@ -5,9 +5,8 @@ import LambdaCalculus
 -- internalnatural genera las f°^n x correspondientes a cada natural n
 
 internalchurch:: Natural-> Expr 
-internalchurch n = 
-    if n == 0 then Var "x"
-    else App (Var "x")(internalchurch (n-1))
+internalchurch 0 = Var "x"
+internalchurch n= App (Var "f")(internalchurch (n-1))
 
 -- esta funcion nos mantiene la estructura 
 -- base lambda f.lambda x adicionando la estructura
@@ -16,27 +15,45 @@ church :: Natural->Expr
 church n = Lam "f" (Lam "x" (internalchurch n))
 
 successor:: Expr -> Expr 
-successor n =Lam "n" (Lam "f" (Lam "x"(App(Var "f")(
-    App(App(Var "n")(Var "f"))(Var "x")))))
+successor n =betared ( App (Lam "n" (Lam "f" (Lam "x"(App(Var "f")(
+    App(App(Var "n")(Var "f"))(Var "x")))))) n)
 
 add:: Expr -> Expr -> Expr 
-add m n =Lam "m" (Lam "n" (Lam "f" (Lam "x" (
+add m n = 
+    betared (
+    App (
+    App (
+    
+    Lam "m" (Lam "n" (Lam "f" (Lam "x" (
     App (App (Var "m")(Var "f"))
-    (App (App (Var "n")(Var "f"))(Var "x"))))))
+    (App (App (Var "n")(Var "f"))(Var "x")))))))(m))(n))
+
 
 mult:: Expr->Expr->Expr 
 mult m n=
+    betared(
+    App (
+    App (
     Lam "m" (Lam "n" (Lam "f" (Lam "x" 
-    (App (App (Var "m")(App (Var "n")(Var "f"))) (Var "x")))))
+    (App (App (Var "m")(App (Var "n")(Var "f"))) (Var "x"))))))(m))(n))
+
 exp:: Expr ->Expr -> Expr 
 exp m n= 
+    betared(
+    App(
+   App ( 
   Lam "m" (Lam "n" (Lam "f" (Lam "x" 
-  (App (App (App (Var "n")(Var "m"))(Var "f"))(Var "x")))))
+  (App (App (App (Var "n")(Var "m"))(Var "f"))(Var "x"))))))(m))(n))
 
 pred:: Expr->Expr 
-pred n = Lam "n" (Lam "f" (Lam "x" (
+pred n = 
+    betared(
+    App(
+    Lam "n" (Lam "f" (Lam "x" (
     App (
         App (
             App (Var "n")(Lam "g" (Lam "h" (App(Var "h")(App (Var "g")(Var "h")))))
         )(Lam "u" (Var "x"))
-    )(Lam "u" (Var "u")))))
+    )(Lam "u" (Var "u"))))))n)
+    
+
