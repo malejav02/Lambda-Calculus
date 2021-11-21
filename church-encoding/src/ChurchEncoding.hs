@@ -46,14 +46,16 @@ exp m n=
   (App (App (App (Var "n")(Var "m"))(Var "f"))(Var "x"))))))(m))(n))
 
 pred:: Expr->Expr 
-pred n = 
+pred n=
+     if n == church 0 then betared (church 0)
+else
     betared(
     App(
     Lam "n" (Lam "f" (Lam "x" (
     App (
         App (
-            App (Var "n")(Lam "g" (Lam "h" (App(Var "h")(App (Var "g")(Var "h")))))
+            App (Var "n")(Lam "g" (Lam "h" (App(Var "h")(App (Var "g")(Var "f")))))
         )(Lam "u" (Var "x"))
     )(Lam "u" (Var "u"))))))n)
-    
+
 
