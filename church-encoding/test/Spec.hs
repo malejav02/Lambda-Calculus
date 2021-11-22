@@ -100,12 +100,3 @@ main = do
     quickCheck $ test 
     (quickCheckWith stdArgs{maxSuccess = 100, maxSize=9}) $ testExp 
  
-test:: Natural -> Natural -> Bool 
-test m n= (testSucc m)&& (testSucc n) && (testAdd m n) && (
-          testMult m n)&& (testPred m) && (testPred n)
-
-main:: IO()
-main = do 
-    quickCheck $ test 
-    (quickCheckWith stdArgs{maxSuccess = 100, maxSize=9}) $ testExp 
-
