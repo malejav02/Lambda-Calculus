@@ -1,26 +1,35 @@
+-- Implementation of the λ-calculus using Haskell.
+
+-- Maria Alejandra Vélez Clavijo y Alejandra Palacio Jaramillo.
+
+-- Windows 10.
+-- Tested with GHC 9.0.1 and QuickCheck 2.14.2
+
+
 module LambdaCalculus where
 import Numeric.Natural (Natural)
 import Data.List ( (\\), union )
 
--- declaramos el tripo de dato que son los simbolos 
+-- The type of data that the symbols are is declared to be String.
 type Sym = String
 
--- declaramos los lambda terminos
+-- λ-termns are declared
 data Expr
         = Var Sym
         | App Expr Expr
         | Lam Sym Expr
         deriving (Eq, Read, Show)
         
--- declaramos las variables libres 
+-- The freeVars function gets the free variables of a λ-term. Free 
+-- variables occur in an expression but aren't bound to it.
 freeVars :: Expr -> [Sym] 
 freeVars (Var s) = [s] 
 freeVars (App f a) = freeVars f `union` freeVars a 
 freeVars (Lam i e) = freeVars e \\ [i]
 
--- (alpha conversion)
---subst reemplaza todas las apariciones libres de v
--- por b en dentro de x 
+-- α conversion.
+-- The subst function replaces all free occurrences of v by b within x.
+-- In other words, change the name of a bound variable.
 subst :: Sym -> Expr -> Expr -> Expr
 subst v x b = sub b
   where sub e@(Var i) = if i == v then x else e
@@ -38,17 +47,20 @@ subst v x b = sub b
         cloneSym e i = loop i
            where loop i' = if i' `elem` vars then loop (i ++ "'") else i'
                  vars = fvx ++ freeVars e
+
+-- The substVar function substitute one variable for another.
 substVar :: Sym -> Sym -> Expr -> Expr
 substVar s s' e = subst s (Var s') e
 
--- Comparar expresiones modulo alpha conversiones
+-- The alphaEq function compare expressions module α-conversion.
 alphaEq :: Expr -> Expr -> Bool 
 alphaEq (Var v) (Var v1) = v == v1 
 alphaEq (App f a) (App f1 a1) = alphaEq f f1 && alphaEq a a1 
 alphaEq (Lam s e ) (Lam s1 e1) = alphaEq e (substVar s1 s e1) 
 alphaEq _ _ = False
 
--- reducción normal (beta reduccion)
+-- β-reduction.
+-- The betared function reduce an expresion (λx.t)s to the form t[x := s]
 betared :: Expr -> Expr
 betared ee = spine ee []
   where spine (App f a) as = spine f (a:as)
@@ -58,7 +70,6 @@ betared ee = spine ee []
         app f as = foldl App f (map betared as)
 
 
--- verificamos sí las beta reducciones son iguales
+-- The betaEq function compare expressions module β-reduction.
 betaEq :: Expr -> Expr -> Bool
 betaEq e1 e2 = alphaEq (betared e1) (betared e2)
-
